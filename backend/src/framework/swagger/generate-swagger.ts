@@ -11,6 +11,7 @@ import {
   OpenAPIObject,
   SwaggerModule,
 } from '@nestjs/swagger';
+import { writeFile } from 'fs/promises';
 
 class SuccessResponse<T> {
   @ApiProperty()
@@ -43,6 +44,7 @@ async function generateSwagger() {
     .setTitle('Fullstack Homework API')
     .addGlobalResponse({
       status: 500,
+      description: 'Internal Server Error',
       schema: { $ref: getSchemaPath(InternalServerErrorResponse) },
     })
     .build();
@@ -50,9 +52,8 @@ async function generateSwagger() {
     extraModels: [SuccessResponse, InternalServerErrorResponse],
   });
   wrapAllResponses(document);
-  SwaggerModule.setup('api', app, document);
-  // await app.close();
-  await app.listen(process.env.PORT ?? 3000);
+  await writeFile('./swagger.json', JSON.stringify(document, null, 2));
+  await app.close();
 }
 
 function wrapAllResponses(doc: OpenAPIObject) {
