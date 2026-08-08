@@ -1,0 +1,62 @@
+// backend/src/inMemoryDB.js
+class InMemoryDB {
+  constructor() {
+    this.users = [
+      { id: 1, name: "Employee One", role: "employee", email: "emp@test.com", leaveBalance: 12 },
+      { id: 2, name: "Manager Smith", role: "manager", email: "mgr@test.com", leaveBalance: 20 }
+    ];
+    this.leaveRequests = [];
+    this.nextId = 1;
+  }
+
+  // User methods
+  getUserByEmail(email) {
+    return this.users.find(u => u.email === email);
+  }
+
+  getUserById(id) {
+    return this.users.find(u => u.id === id);
+  }
+
+  updateLeaveBalance(userId, newBalance) {
+    const user = this.getUserById(userId);
+    if (user) user.leaveBalance = newBalance;
+  }
+
+  // Leave request methods
+  createLeaveRequest(data) {
+    const newRequest = {
+      id: this.nextId++,
+      ...data,
+      status: 'pending',
+      createdAt: new Date()
+    };
+    this.leaveRequests.push(newRequest);
+    return newRequest;
+  }
+
+  getRequestsByUserId(userId) {
+    return this.leaveRequests.filter(r => r.userId === userId);
+  }
+
+  getAllRequests() {
+    return [...this.leaveRequests];
+  }
+
+  getRequestById(id) {
+    return this.leaveRequests.find(r => r.id === id);
+  }
+
+  updateRequestStatus(id, status, reviewedBy) {
+    const request = this.getRequestById(id);
+    if (request) {
+      request.status = status;
+      request.reviewedBy = reviewedBy;
+      request.reviewedAt = new Date();
+      return request;
+    }
+    return null;
+  }
+}
+
+module.exports = new InMemoryDB();
